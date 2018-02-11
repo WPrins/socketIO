@@ -8,15 +8,6 @@ var Strategy = require('passport-facebook').Strategy;
 
 app.set('view engine', 'ejs');
 
-function isLoggedIn(req, res, next) {
-    req.loggedIn = !!req.user;
-    next();
-}
-
-app.get('/', isLoggedIn, function (req, res) {
-    res.sendFile(__dirname + '/index.html');
-});
-
 passport.use(new Strategy({
         clientID: '274523869373933',
         clientSecret: '2b6429013eeb7335bd0ed64b3e85aaf5',
@@ -60,6 +51,11 @@ passport.serializeUser(function (user, cb) {
 passport.deserializeUser(function (obj, cb) {
     cb(null, obj);
 });
+
+app.get('/', require('connect-ensure-login').ensureLoggedIn(), function (req, res) {
+    res.sendFile(__dirname + '/index.html');
+});
+
 app.get('/login', function (req, res) {
     res.sendFile(__dirname + '/login.html');
 });
@@ -69,11 +65,9 @@ app.get('/login/facebook',
 
 app.get('/login/facebook/return',
     passport.authenticate('facebook', {
+        successReturnToOrRedirect: '/',
         failureRedirect: '/login'
-    }),
-    function (req, res) {
-        res.redirect('/profile');
-    });
+    }));
 
 app.get('/profile',
     require('connect-ensure-login').ensureLoggedIn(),
