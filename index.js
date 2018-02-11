@@ -6,8 +6,10 @@ var url = "mongodb://localhost:27017/";
 var passport = require('passport');
 var Strategy = require('passport-facebook').Strategy;
 
+app.set('view engine', 'ejs');
+
 function isLoggedIn(req, res, next) {
-    req.loggedIn = !boolean(req.user);
+    req.loggedIn = !!req.user;
     next();
 }
 
@@ -70,7 +72,7 @@ app.get('/login/facebook/return',
         failureRedirect: '/login'
     }),
     function (req, res) {
-        res.redirect('/');
+        res.redirect('/profile');
     });
 
 app.get('/profile',
