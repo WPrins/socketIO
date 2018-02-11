@@ -3,10 +3,83 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mongo = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
+var passport = require('passport');
+var Strategy = require('passport-facebook').Strategy;
 
-app.get('/', function (req, res) {
+function isLoggedIn(req, res, next) {
+    req.loggedIn = !boolean(req.user);
+    next();
+}
+
+app.get('/', isLoggedIn, function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
+
+passport.use(new Strategy({
+        clientID: '274523869373933',
+        clientSecret: '2b6429013eeb7335bd0ed64b3e85aaf5',
+        callbackURL: 'http://localhost:3000/login/facebook/return'
+    },
+    function (accessToken, refreshToken, profile, cb) {
+        // In this example, the user's Facebook profile is supplied as the user
+        // record.  In a production-quality application, the Facebook profile should
+        // be associated with a user record in the application's database, which
+        // allows for account linking and authentication with other identity
+        // providers.
+        return cb(null, profile);
+    }));
+
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
+
+app.use(require('morgan')('combined'));
+app.use(require('cookie-parser')());
+app.use(require('body-parser').urlencoded({
+    extended: true
+}));
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
+app.get('/login', function (req, res) {
+    res.sendFile(__dirname + '/login.html');
+});
+
+app.get('/login/facebook',
+    passport.authenticate('facebook'));
+
+app.get('/login/facebook/return',
+    passport.authenticate('facebook', {
+        failureRedirect: '/login'
+    }),
+    function (req, res) {
+        res.redirect('/');
+    });
+
+app.get('/profile',
+    require('connect-ensure-login').ensureLoggedIn(),
+    function (req, res) {
+        res.render('profile', {
+            user: req.user
+        });
+    });
 
 function mongoFind() {
     mongo.connect(url, function (err, db) {

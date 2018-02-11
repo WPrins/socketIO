@@ -12,6 +12,7 @@
         });
         socket.on('chat message', function (msg) {
             $('#messages').append($('<li>').text(msg));
+            window.scrollTo(0, document.body.scrollHeight);
         });
     });
 </script>
@@ -55,6 +56,7 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
+            margin-bottom: 41px;
         }
 
         #messages li {
