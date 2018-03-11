@@ -32,8 +32,6 @@ passport.deserializeUser(function (obj, cb) {
     cb(null, obj);
 });
 
-
-
 // Setup cookies for user
 
 app.use(require('morgan')('combined'));
