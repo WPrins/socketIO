@@ -25,6 +25,18 @@ passport.use(new Strategy({
     }));
 
 passport.serializeUser(function (user, cb) {
+    mongo.connect(url, function (err, db) {
+        if (err) throw err;
+        var dbo = db.db("socketChat");
+        dbo.collection("users").update(
+            {id: user.id},
+            {id: user.id, displayName: user.displayName},
+            {upsert: true},
+            function () {
+                console.log(user.id);
+            db.close();
+        });
+    });
     cb(null, user);
 });
 
