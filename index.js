@@ -30,10 +30,11 @@ passport.serializeUser(function (user, cb) {
         var dbo = db.db("socketChat");
         dbo.collection("users").update(
             {id: user.id},
-            {id: user.id, displayName: user.displayName},
+            {id: user.id,
+                displayName: user.displayName},
             {upsert: true},
             function () {
-                console.log(user.id);
+                // console.log(user.id);
             db.close();
         });
     });
