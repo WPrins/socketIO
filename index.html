@@ -12,7 +12,7 @@
         });
         socket.on('chat message', function (msg) {
             $('#messages').append($('<li>').text(msg));
-            this.$el.scrollTo(0, this.$el.scrollHeight);
+            window.scrollTo(0, document.body.scrollHeight);
         });
     });
 </script>
